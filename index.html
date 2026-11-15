@@ -17,7 +17,7 @@
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
@@ -32,856 +32,290 @@
             width: 100%;
             max-width: 600px;
             background: var(--card-bg);
-            padding: 24px;
             border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
         }
 
         h1 {
-            font-size: 1.5rem;
             text-align: center;
-            margin-bottom: 1.5rem;
             color: var(--primary);
+            margin-bottom: 25px;
+            font-size: 24px;
         }
 
-        .screen {
-            display: none;
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 14px;
         }
 
-        .screen.active {
-            display: block;
+        .question {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
 
-        .btn-group {
+        .options {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 20px;
         }
 
-        button {
+        .btn {
+            background-color: #ffffff;
+            border: 2px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background-color: #f1f5f9;
+            transform: translateY(-2px);
+        }
+
+        .btn.correct {
+            background-color: var(--success) !important;
+            color: white;
+            border-color: var(--success);
+            animation: pulse 0.4s ease;
+        }
+
+        .btn.incorrect {
+            background-color: var(--error) !important;
+            color: white;
+            border-color: var(--error);
+            animation: shake 0.4s ease;
+        }
+
+        .next-btn {
+            margin-top: 20px;
+            width: 100%;
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 1rem;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            display: none;
+            transition: background 0.2s;
         }
 
-        button:hover {
+        .next-btn:hover {
             background-color: var(--primary-hover);
         }
 
-        .option-btn {
-            background-color: #f1f5f9;
-            color: var(--text);
-            border: 1px solid var(--border);
-            text-align: left;
-            width: 100%;
-            margin-bottom: 8px;
-        }
-
-        .option-btn:hover {
-            background-color: #e2e8f0;
-        }
-
-        .option-btn.correct {
-            background-color: var(--success);
-            color: white;
-            border-color: var(--success);
-        }
-
-        .option-btn.incorrect {
-            background-color: var(--error);
-            color: white;
-            border-color: var(--error);
-        }
-
-        .progress {
-            font-size: 0.875rem;
-            color: #64748b;
-            margin-bottom: 12px;
-        }
-
-        .question-text {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .result-box {
+        .result-screen {
             text-align: center;
+            display: none;
         }
 
-        .score {
-            font-size: 2.5rem;
-            font-weight: bold;
+        .result-screen h2 {
+            font-size: 26px;
             color: var(--primary);
-            margin: 20px 0;
+            margin-bottom: 15px;
+        }
+
+        .restart-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+            }
+            .container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Башкы меню -->
-    <div id="start-screen" class="screen active">
+    <div id="quiz-screen">
         <h1>Фразеологизмдер Тести</h1>
-        <p style="text-align: center; color: #64748b;">Суроолордун санын тандаңыз:</p>
-        <div class="btn-group">
-            <button onclick="startQuiz(10)">10 суроо</button>
-            <button onclick="startQuiz(20)">20 суроо</button>
-            <button onclick="startQuiz(50)">50 суроо</button>
-            <button onclick="startQuiz('all')">Бардык суроолор</button>
+        <div class="quiz-header">
+            <span id="question-count">Суроо: 1/10</span>
+            <span id="score-display">Упай: 0</span>
         </div>
+        <div class="question" id="question-text">Суроо жүктөлүүдө...</div>
+        <div class="options" id="options-container"></div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Кийинки суроо</button>
     </div>
 
-    <!-- Суроолор экраны -->
-    <div id="quiz-screen" class="screen">
-        <div class="progress" id="progress-indicator">Суроо 1 / 10</div>
-        <div class="question-text" id="question-container">Суроо текст</div>
-        <div id="options-container"></div>
-    </div>
-
-    <!-- Жыйынтык экраны -->
-    <div id="result-screen" class="screen result-box">
-        <h1>Тест аяктады!</h1>
-        <p>Сиздин жыйынтыгыңыз:</p>
-        <div class="score" id="score-display">0 / 0</div>
-        <button onclick="location.reload()">Кайра баштан өтүү</button>
+    <div class="result-screen" id="result-screen">
+        <h2>Тест аяктады! 🎉</h2>
+        <p id="final-score" style="font-size: 18px; margin-bottom: 20px;"></p>
+        <button class="restart-btn" onclick="restartQuiz()">Кайра баштоо</button>
     </div>
 </div>
 
 <script>
-    const allData = [
-        { q: "Ичтеринен кан өттү", a: "Өтө кейүү, ичи ачышуу" },
-        { q: "Айда сазайын берген", a: "Айда тилдешкен" },
-        { q: "Кара жаак", a: "Көп какшанган,тили заар" },
-        { q: "Маңдайы жарылуу", a: "Өтө кубануу, сүйүнүү" },
-        { q: "Чечекейи чеч болуу", a: "Жадырап -жайноо" },
-        { q: "Бир буту көргө малынуу", a: "Кыйынчылыкка кабылуу, оор абалда калуу" },
-        { q: "Ортого чычкан жорголобой", a: "Жакындабоо, араздашып калуу ,мамиленин үзүлушү" },
-        { q: "Моюн толгоо", a: "Тил албоо ,айтканга көнбөгөн,бир нерсени жасоодон баш тарткан" },
-        { q: "Жинин каккан", a: "Жазалоо, урушчаак, тез жини келген" },
-        { q: "Мурду менен бир тийүү", a: "Орой мамиле жасоо, корс" },
-        { q: "Кирпик какпай", a: "Уйку бетин көрбөө, уктабоо" },
-        { q: "Маңдай тер ,таман акы", a: "Адал эмгек ,өз күчү менен тапкан таман акы" },
-        { q: "Өпкөсү жок", a: "Жеңил мүнөз ,оолукчан, мактанчаак, көйрөң, ушакчы, туруксуз" },
-        { q: "Өз көмөчүнө күл тартуу", a: "Өз кызыкчылыгын көздөө, өзүмчүл" },
-        { q: "Ак каптал", a: "Дассыкан ,бай , колунда бар,эч нерседен кем эмес" },
-        { q: "Тили буудай кууруйт", a: "Көп сүйлөйт, сөзгө чечен" },
-        { q: "Оту күйүшпөө", a: "Бири-бири менен мамиле табыша албоо, өз ара тил табыша албоо ,жылдызы туура келбөө" },
-        { q: "Кирпигинен тартса жыгылат", a: "Абдан алсыз, алдан-күчтөн тайган, абдан чарчаган же ооруп араң турган" },
-        { q: "Желкесинин чуңкуру көрсүн", a: "Экинчи көргүлүк кылбасын, караанын көрсөтпөө,жек көрүү" },
-        { q: "Тишибиздин кирин соруу", a: "Ачка калуу, жокчулукта же тартыштыкта кысынып калуу" },
-        { q: "Кара жанын карч уруу", a: "Бардык күчүн жумшап аракеттенүү, өтө катуу аракет кылуу" },
-        { q: "Ала көөдөн", a: "Боорукер" },
-        { q: "Ат тезегин кургатпай", a: "тез- тез, дароо" },
-        { q: "Бети калың", a: "Тоготпогон, уялбаган, уят-сыйы жок,бетпак" },
-        { q: "Бөйрөктөн шыйрак чыгаруу", a: "Ыксыз күнөөлө, жок жерден эле бирөөнү айыптаган" },
-        { q: "Жеңи ичинен", a: "Жашыруун, тымызын, элге көрсөтпөй өз ара келишим кылуу" },
-        { q: "Жылдызы жерге түшүү", a: "Көңүлүү чөгүү, капа болуу" },
-        { q: "Иттен чыгаруу", a: "Алдап-салдап жолго салуу, эптеп-септеп узатып коюу" },
-        { q: "Кабыргасы кайышуу", a: "Ичи ачышуу, боору ооруу" },
-        { q: "Казаны оттон түшкөн", a: "Жакырлануу, тамак жасаарга эч нерсеси жок калуу, жетишпеген турмушка туш болуу" },
-        { q: "Кулагы жок", a: "Сөз укпаган, тил абаган өжөр ,кежир" },
-        { q: "Колу туткак", a: "Урулукка жакын, бирөөнүн буюмун сурабай алган адаты бар" },
-        { q: "Мурдун тарта албаган", a: "Али чоңоё элек бала, тажрыйбасыз,эч нерсени түшүнө элек" },
-        { q: "Тил эмизүү", a: "Курулай убада берген,алдоо,сөзүндө турбаган" },
-        { q: "Мурдун көтөргөн", a: "Кекирейген, менменсинген, текебер" },
-        { q: "Чычканга кебек алдырбаган", a: "Зыкым, өтө сараң, тың ,эпчил ,ач көз" },
-        { q: "Төбө чачы тик туруу", a: "Катуу таң калуу" },
-        { q: "Жүрөгү оозуна капталуу", a: "Абдан коркуу, капысынан же ктүүсүз жерден болгон коркунучтуу окуя" },
-        { q: "Камырдан кыл сууругандай", a: "Өтө кылдаттык менен бүтүрүү, абдан жеңил, таза бүтүрүү" },
-        { q: "Көзгө сайса көрүнгүс", a: "Караңгы, айсыз түн" },
-        { q: "Кулагынан күн көрүнүү", a: "Өтө арык, арыктап териси жукарып кетүү" },
-        { q: "Ооз ачпоо", a: "Унчукпоо ,эч нерсе айтпоо,сүйлөбөө" },
-        { q: "Тилин тишине катуу", a: "Ооз ачпоо, сырды бекем катуу, унчукпай калуу" },
-        { q: "Үрүп чыгар ити жок", a: "Өтө кедей ,жакыр, колунда жок,эч нерсеси жок" },
-        { q: "Чычкан мурду өткүс", a: "Жыш, тыгыз, эч кандай боштук жок, өтө бекем" },
-        { q: "Эне сүтү оозунан кете элек", a: "Али жаш, тажрыйбасыз, бала бойдон" },
-        { q: "Сөзүн жерге калтырбоо", a: "Убадасын аткаруу, айтылган сунушун ,сөзүн, өтүнүчүн сыйлап сөзүн эки кылбай аткаруу" },
-        { q: "Көздөн кайым болуу", a: "Жок болуу, көрүнбөй калуу, заматта жок болуп кетүү" },
-        { q: "Ала жипти аттабоо", a: "Арамдык жасабоо, бирөөнүн акысына кирбөө" },
-        { q: "Сөөгүм агарды", a: "Семирүү, бейпил ,жеюил жашоо ,бутуна туруу" },
-        { q: "Оту менен кирип ,күлү менен чыгуу", a: "Эртден кечке кызмат кылуу, үй бүлөсү же башка нерсе үчүн данын берип кызмат кылуу ,катуу эмгектенүү" },
-        { q: "Ысыгына күйүү ,суугуна чыдоо", a: "Чыдамкайлык, кандай гана кыйын күндөр, оор күндөр болбосун баарына чыдоо,турмуштун баардык кыйынчылыгына чыдоо" },
-        { q: "Жылдызы ысык", a: "Жагымдуу, сүйкүмдүү, адамга тез эле жагып калуу" },
-        { q: "Өлгөндүн үстүнө көмгөн", a: "Уят кылуу, кыйынчылыктын үстүнө кыйынчылык, кырсыктын үстүнө кырсык болгондо, иш ого бетер оорлошкондо айтылат" },
-        { q: "Жарытымдуу оокат", a: "Жетерлик тамак-аш" },
-        { q: "Кара кылды карк жарган", a: "Калыс, абдан адилеттүү ,чындыкты гана сүйлөгөн,эч кимге жан тартпаган" },
-        { q: "Кулак угуп, көз көрбөгөн", a: "Алыс, буга чейин такыр кезикпеген, укмуштуу, окуя, иш, жер же нерсе" },
-        { q: "Ичкени ирим ,жегени желим", a: "Нес болуп туруп калуу, абдан кыйналган, санаага баткан,кайгырган же оор абалда калган адамдын абалын билдирет" },
-        { q: "Бетинен кан тамган", a: "Жаркырап турган, татынакай, өңү абдан сулуу, жапжаш" },
-        { q: "Эт менен челдин ортосунда", a: "Эки тараптын ортосунда кошомат кылуу,эки жүздүүлүк" },
-        { q: "Куурай башын сындырбоо", a: "Жалкооо, эч кандай жумуш кылбоо" },
-        { q: "Ичи жалын, сырты чок", a: "Күйүп-бышуу, сырттан караганда абдан тың ,күчтүү көрүнгөнү менен ичинен катуу кайгыруу" },
-        { q: "Түтүн булатуу", a: "Чогу жашоо, үй бүлө куруу" },
-        { q: "Ортосунан кыл өтпөө", a: "Ынтымактуу, ортодогу мамилеси өтө бекем, жакын" },
-        { q: "Төбөсү көккө жетүү", a: "Сүйүнүү, кубануу" },
-        { q: "Көктөн издегени жерден табылды", a: "Таба албай жүргөнүн табу" },
-        { q: "Кирпик какпай жатуу", a: "Уктай албай жатуу" },
-        { q: "Узун жолду кыскартып ,ат жалына казан асуу", a: "Шам -шум этүү, сүйльшүп кетүү" },
-        { q: "Бири-бирине колтук ачпоо", a: "Достошпоо" },
-        { q: "Кыргый кабак", a: "Таарынышкан" },
-        { q: "Бетинен кан таамп, илебине нан бышып", a: "Сүйкүмдүү" },
-        { q: "Оту жыгылуу, суусу алынуу", a: "Баары даяр" },
-        { q: "Кой үстүнө торгой жумуртлаган заман", a: "Тынчтык, токчулук заман" },
-        { q: "Ак кол", a: "Жалкоо" },
-        { q: "Кабагына карыш салып", a: "Капалануу, убайым тартуу" },
-        { q: "Көлөкө түшүрбөө", a: "Жамандык кылбоо" },
-        { q: "Чекесинен чертпөө", a: "Жакын жолой албоо" },
-        { q: "Очоктун отун өчүрбөй", a: "Ынтымакта жашоо" },
-        { q: "Башына баш кошулса", a: "Үйлөнүү" },
-        { q: "Таман акы, маңдай тер, ысык ыклас", a: "Эмгек" },
-        { q: "Ичкен ашын жерге коё салуу", a: "Сыйлоо, урматтоо" },
-        { q: "Кырсык каш кабактын ортосунда", a: "Кокус жерден" },
-        { q: "Тамырын тартуу, колтугуна суу бүркүү", a: "Тукуруу" },
-        { q: "Чырагына май тамызуу", a: "Ишинин оңолушуна жардам берүү" },
-        { q: "Азуусун айга азган", a: "Заарын чачкан" },
-        { q: "Ары карап ыйлап, бери карап күлүү", a: "Өзүн-өзү мажбурлоо" },
-        { q: "Жердин жети түбүндө", a: "Алыстык" },
-        { q: "Ичине таруу айланбайт", a: "Жаман ою жок" },
-        { q: "Жүрөгүндө кири жок", a: "Бирөөгө жамандык каалабаган" },
-        { q: "Сары изине чөп салуу", a: "Сая түшүү" },
-        { q: "Саргара кууп алуу", a: "Көптөн берүү издөө" },
-        { q: "Ажыдаардын куйругун басып алуу", a: "Каарына калуу" },
-        { q: "Бөрк ал десе, баш алган", a: "Аша чабуу" },
-        { q: "Бирөөнүн сөзүнө ишенип, сызга отуруп калуу", a: "Натыйжасыз калуу" },
-        { q: "Кабырган менен кеңеш", a: "Ойлонуу" },
-        { q: "Колунан көөрү төгүлүү", a: "Уста" },
-        { q: "Музоо кезинде эле, сүзүп коюу", a: "Жаңы бала кезинде тарбиялоо" },
-        { q: "Суулуулугу менен суу ичип", a: "Куру чиренүү" },
-        { q: "Өтүгү менен суу кечип", a: "Кедейленүү" },
-        { q: "Капилеттен сөз тапкан, караңгыда жол ачкан", a: "Чечен, лидер, акылман" },
-        { q: "Жырык ийнесине тийбеген", a: "Эч нерсесине тийбеген" },
-        { q: "Өчкөн отун тамызуу", a: "Оңолуу" },
-        { q: "Өлгөн жанды тиргизген", a: "Үмүт берүү" },
-        { q: "Чачылганды жыйноо", a: "Бириктирүү" },
-        { q: "Үзүлгөндү улоо", a: "Жараштыруу, оңдоо" },
-        { q: "Кара сууга кан төккөн", a: "Баарын күчөткөн" },
-        { q: "Ак эткенден так этүү", a: "Эңсөө" },
-        { q: "Колу жука", a: "Кедей" },
-        { q: "Эшигинде адалдан түгү жок", a: "Кедей" },
-        { q: "Таңдайынан чаң чыгуу", a: "Чечен, сөзмөөр" },
-        { q: "Үрөйү учуу", a: "Коркуу, таң калуу" },
-        { q: "Канаттууга кактырбай, тумшуктууга чокутпоо", a: "Өтө аярлоо" },
-        { q: "Битин сыгып канын жалоо", a: "Зыкым, сараң" },
-        { q: "Жаны көзүнө көрүнүү", a: "Катуу ооруп калуу" },
-        { q: "Жону жукарып, колу кыскаруу", a: "Кедей болуп калуу" },
-        { q: "Беш колубуздан май таамп, байпагыбыз макмал болгон", a: "Бай болуу" },
-        { q: "Күн карама", a: "Кошоматчы" },
-        { q: "Мурдун балта кеспөө", a: "Тоготпоо" },
-        { q: "Кайырмакка саяр эти жок", a: "Арык" },
-        { q: "Каны ичине тартуу", a: "Ачуусу келүү" },
-        { q: "Текей оттоп жүрүү", a: "Бекерчилик" },
-        { q: "Күн тийген тоонун күкүгү", a: "Кошоматчы" },
-        { q: "Кыртышы сүйбөө", a: "Жактырбоо" },
-        { q: "Ааламды сел каптаса да, кызыл ашыгына да чыгып койбойт", a: "Беймарал" },
-        { q: "Кесип алса, кан чыкпайт", a: "Сараң" },
-        { q: "Тили оозуна батпоо", a: "Көп сүйлөгөн, оозу бош" },
-        { q: "Жер баспай калуу", a: "Текеберленген" },
-        { q: "Кыл жугузбоо", a: "Таза" },
-        { q: "Көчө таптоо", a: "Бекерчи" },
-        { q: "Кекиртегин талга асуу", a: "Эч нерсеси жок" },
-        { q: "Кырды-бычак болуу", a: "Урушуу, кас болуу" },
-        { q: "Ортосуна от жагуу", a: "Экөөнү уруштуруу" },
-        { q: "Каны катуу", a: "Суусоо, чаңкоо" },
-        { q: "Жерге-сууга тийгизбөө", a: "Мактоо" },
-        { q: "Ак көрпө жайыл", a: "Билерман" },
-        { q: "Алты саны аман", a: "Дени сак" },
-        { q: "Бештен белгилүү", a: "Өтө белгилүү" },
-        { q: "Бешиктен бели чыга элек", a: "Жаш, чоңоё элек" },
-        { q: "Ач айкырык, куу кыйкырык", a: "Азап-тозок" },
-        { q: "Бычакка саптык уулуң жок, камчыга саптык бириң жок", a: "Ишке жараар" },
-        { q: "Ит байлаган жиптен жок", a: "Куру жалак калуу" },
-        { q: "Азуусун айга бир кайроо", a: "Ачуулануу" },
-        { q: "Боз торгой жумурткалап", a: "Кеңиричилик" },
-        { q: "Котур ташы койнунда", a: "Арам ойлуу" },
-        { q: "Бир чылбыр эки тизгин колунда", a: "Бийлик" },
-        { q: "Аягынан жел эптеп өтүп турса", a: "Эптеп-септеп жашоо" },
-        { q: "Жер каратпоо", a: "Уят кылбоо" },
-        { q: "Териси жука", a: "Сөз көтөрө албаган" },
-        { q: "Ачуусу мурдунун учунда", a: "Ачуулуу" },
-        { q: "Жүрөк суусун алуу", a: "Коркутуу" },
-        { q: "Бир аягым көрдө, бир аягым төрдө", a: "Өлүм алдында" },
-        { q: "Сары ооз балапан", a: "Жаш" },
-        { q: "Көзүнүн төбөсү менен кароо", a: "Жек көрүү" },
-        { q: "Көзү чанагынан чыгып кетүү", a: "Бапырайган" },
-        { q: "Жел өпкө", a: "Көйрөң" },
-        { q: "Бир карын майды, бир кумалак чиритет", a: "Бир жаман адам" },
-        { q: "Төөнү букакка чапкандай", a: "Тез-тез сүйлөө" },
-        { q: "Кулак-мурун кескендей", a: "Тынч, жымжырттык" },
-        { q: "Жер менен жексен кылуу", a: "Жок кылуу" },
-        { q: "Башы бышкан", a: "Дасыккан" },
-        { q: "Көзү каныккан", a: "Билип калуу" },
-        { q: "Буту үзүлгөнчө чуркоо", a: "Тез чуркоо" },
-        { q: "Мурдунан жетелөө", a: "Баш ийдирип алуу" },
-        { q: "Карышкырга кой кайтартуу", a: "Душманына шарт түзүү" },
-        { q: "Ийне-жибине чейин", a: "Майда-чүйдөсүнө чейин" },
-        { q: "Үкүнүн уясын тапкандай", a: "Кубануу" },
-        { q: "Бармагын кесе тиштөө", a: "Өкүнүү" },
-        { q: "Темирдин кызуусунда согуу", a: "Өз убагында аткаруу" },
-        { q: "Төөнүн куйругу жерге тийгенде", a: "Эч качан" },
-        { q: "Сөөк жаңыртуу", a: "Мурда кудаа-сөөк болгон адамдар менен экинчи жолу да кыз алышып, кыз беришип, дагы кудалашуу" },
-        { q: "Сөөгүн сөпөт кылуу", a: "Өлтүрүү, жоготуу, жок кылуу, дайынын билгизбей салуу." },
-        { q: "Сөөгү таза", a: "Мүчөсү, сын-сыпаты келишкен, сымбаттуу." },
-        { q: "Сөөгү жукаруу", a: "Начарлоо, арып-ачып, арыктап калуу, күч-кубатынан таюу." },
-        { q: "Талпагын ташка жаюу", a: "Кыйратуу, талкалоо, жок кылуу, ташын талкан кылуу." },
-        { q: "Топурагы жеңил", a: "Жалаага жакын, сөзгө бат илеше турган." },
-        { q: "Куйрук түйүү", a: "Биротоло кетип калуу, алыстоо, таптырбоо, карматпоо, экинчи колго тийбөө." },
-        { q: "Күмүштүн күкүмүндөй терүү", a: "Өтө кылдаттык менен чогултуу, үйрөнүү, этият мамиле жасоо, аздектөө." },
-        { q: "Ичи өрт менен жалын болуу", a: "Абдан катуу кайгыруу, күйүт тартуу, күйгүлтүккө түшүү." },
-        { q: "Ичи сыйрылуу", a: "Кыйылуу, өкүнүү, кейигенсүү, боору ооруу." },
-        { q: "Бети ачык", a: "Ийменгенди, тартынганды билбеген, уяты жок, кашка." },
-        { q: "Боору түтпөө", a: "Чыдай албай жан тартуу, кыйып кете албоо, аяп туруу, имерчиктөө." },
-        { q: "Жамбашы жерге тийгенче", a: "Өлөр-өлгөнчө, өмүрүнүн акырына чейин." },
-        { q: "Жой болоттой", a: "Абдан курчуп, такшалып. Эч тартынбай, тайманбай киришкидей же айткыдай." },
-        { q: "Жонуна конуу", a: "Бийлеп алуу, үстөмдүк кылуу." },
-        { q: "Жонунда жалы бар", a: "Баатыр, жалтанбас, эр жүрөк." },
-        { q: "Жылаңач төөнү букакка чапкандай", a: "Эч токтоосуз, буйдалбастан, шырдыр шар." },
-        { q: "Быкбырдай кайноо", a: "Өтө көп болуу, сан жеткис абалда жык-жыйма болуп көрүнүү, толуп, жайнап кетүү." },
-        { q: "Заманасы куурулуу", a: "Шек келтирүү, акарат кылуу." },
-        { q: "Зоот-кыягы жок", a: "Эч кыйынчылыгы жок, жеңил, оңой, анча татаал эмес." },
-        { q: "Зээр салуу", a: "Көңүл бөлүү, назар таштоо" }
-    ];
+    // Үн чыгаруу үчүн Web Audio API колдонобуз (файл жүктөбөй эле үн чыгарат)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    let currentQuestions = [];
-    let currentIndex = 0;
-    let score = 0;
-
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
         }
-        return array;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        } else {
+            osc.frequency.setValueAtTime(250, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.type = 'sawtooth';
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        }
     }
 
-    function startQuiz(count) {
-        let shuffledAll = shuffle([...allData]);
-        if (count === 'all' || count >= shuffledAll.length) {
-            currentQuestions = shuffledAll;
-        } else {
-            currentQuestions = shuffledAll.slice(0, count);
-        }
+    const allQuestions = [
+        { q: "Ичтеринен кан өттү", a: "Өтө кейүү, ичи ачышуу", others: ["Кыйынчылыкка кабылуу", "Өтө кубануу, сүйүнүү", "Уйку бетин көрбөө"] },
+        { q: "Кара жаак", a: "Көп какшанган,тили заар", others: ["Адал эмгек", "Өз кызыкчылыгын көздөө", "Жылдызы ысык"] },
+        { q: "Маңдайы жарылуу", a: "Өтө кубануу, сүйүнүү", others: ["Өтө кейүү", "Катуу коркуу", "Ачка калуу"] },
+        { q: "Чечекейи чеч болуу", a: "Жадырап -жайноо", others: ["Капалануу", "Тили буудай кууруйт", "Кедейленүү"] },
+        { q: "Ортого чычкан жорголобой", a: "Жакындабоо, араздашып калуу ,мамиленин үзүлушү", others: ["Ынтымактуу", "Достошпоо", "Тынчтык заман"] },
+        { q: "Моюн толгоо", a: "Тил албоо ,айтканга көнбөгөн,бир нерсени жасоодон баш тарткан", others: ["Макул болуу", "Эмгектенүү", "Сыйлоо"] },
+        { q: "Жинин каккан", a: "Жазалоо, урушчаак, тез жини келген", others: ["Мээримдүү", "Токтоо", "Акылман"] },
+        { q: "Мурду менен бир тийүү", a: "Орой мамиле жасоо, корс", others: ["Жумшак мамиле", "Жардам берүү", "Сыйлоо"] },
+        { q: "Кирпик какпай", a: "Уйку бетин көрбөө, уктабоо", others: ["Тاتтуу уктоо", "Эс алуу", "Тынч жатуу"] },
+        { q: "Маңдай тер ,таман акы", a: "Адал эмгек ,өз күчү менен тапкан таман акы", others: ["Бекерчилик", "Уурулук", "Жалкоолук"] }
+    ];
+
+    let questions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function startQuiz() {
+        questions = shuffle([...allQuestions]).slice(0, 10);
         currentIndex = 0;
         score = 0;
-
-        document.getElementById('start-screen').classList.remove('active');
-        document.getElementById('quiz-screen').classList.add('active');
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
         showQuestion();
     }
 
     function showQuestion() {
-        if (currentIndex >= currentQuestions.length) {
-            showResult();
-            return;
-        }
+        answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        
+        let qData = questions[currentIndex];
+        document.getElementById('question-count').innerText = `Суроо: ${currentIndex + 1}/${questions.length}`;
+        document.getElementById('score-display').innerText = `Упай: ${score}`;
+        document.getElementById('question-text').innerText = qData.q;
 
-        const qData = currentQuestions[currentIndex];
-        document.getElementById('progress-indicator').innerText = `Суроо ${currentIndex + 1} / ${currentQuestions.length}`;
-        document.getElementById('question-container').innerText = `"${qData.q}" фразеологизминин маанисин табыңыз:`;
+        let options = shuffle([qData.a, ...qData.others]);
+        let container = document.getElementById('options-container');
+        container.innerHTML = '';
 
-        // Башка жооптордон туш келди 3 адаштыруучу вариант тандап алабыз
-        let wrongOptions = allData
-            .filter(item => item.a !== qData.a)
-            .map(item => item.a);
-        wrongOptions = shuffle(wrongOptions).slice(0, 3);
-
-        let options = [...wrongOptions, qData.a];
-        options = shuffle(options);
-
-        const optionsContainer = document.getElementById('options-container');
-        optionsContainer.innerHTML = '';
-
-        options.forEach(option => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = option;
-            btn.onclick = () => checkAnswer(btn, option, qData.a);
-            optionsContainer.appendChild(btn);
+        options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(btn, opt, qData.a);
+            container.appendChild(btn);
         });
     }
 
-    function checkAnswer(button, selected, correct) {
-        const buttons = document.querySelectorAll('.option-btn');
-        buttons.forEach(b => b.disabled = true);
+    function selectOption(button, selected, correct) {
+        if (answered) return;
+        answered = true;
+
+        let buttons = document.querySelectorAll('.options .btn');
+        buttons.forEach(b => {
+            b.disabled = true;
+            if (b.innerText === correct) {
+                b.classList.add('correct');
+            }
+        });
 
         if (selected === correct) {
-            button.classList.add('correct');
             score++;
+            button.classList.add('correct');
+            playSound('correct');
         } else {
             button.classList.add('incorrect');
-            buttons.forEach(b => {
-                if (b.innerText === correct) {
-                    b.classList.add('correct');
-                }
-            });
+            playSound('incorrect');
         }
 
-        setTimeout(() => {
-            currentIndex++;
+        document.getElementById('score-display').innerText = `Упай: ${score}`;
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex < questions.length) {
             showQuestion();
-        }, 1200);
+        } else {
+            showResult();
+        }
     }
 
     function showResult() {
-        document.getElementById('quiz-screen').classList.remove('active');
-        document.getElementById('result-screen').classList.add('active');
-        document.getElementById('score-display').innerText = `${score} / ${currentQuestions.length}`;
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        document.getElementById('final-score').innerText = `Сиз 10 суроодон ${score} туура жооп таптыңыз!`;
     }
+
+    function restartQuiz() {
+        startQuiz();
+    }
+
+    startQuiz();
 </script>
 
 </body>
 </html>
-<!DOCTYPE html>
-<html lang="ky">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Фразеологизмдер Тести</title>
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --border: #e2e8f0;
-            --success: #22c55e;
-            --error: #ef4444;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: var(--primary);
-        }
-
-        .screen {
-            display: none;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .option-btn {
-            background-color: #f1f5f9;
-            color: var(--text);
-            border: 1px solid var(--border);
-            text-align: left;
-            width: 100%;
-            margin-bottom: 8px;
-        }
-
-        .option-btn:hover {
-            background-color: #e2e8f0;
-        }
-
-        .option-btn.correct {
-            background-color: var(--success);
-            color: white;
-            border-color: var(--success);
-        }
-
-        .option-btn.incorrect {
-            background-color: var(--error);
-            color: white;
-            border-color: var(--error);
-        }
-
-        .progress {
-            font-size: 0.875rem;
-            color: #64748b;
-            margin-bottom: 12px;
-        }
-
-        .question-text {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .result-box {
-            text-align: center;
-        }
-
-        .score {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin: 20px 0;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <!-- Башкы меню -->
-    <div id="start-screen" class="screen active">
-        <h1>Фразеологизмдер Тести</h1>
-        <p style="text-align: center; color: #64748b;">Суроолордун санын тандаңыз:</p>
-        <div class="btn-group">
-            <button onclick="startQuiz(10)">10 суроо</button>
-            <button onclick="startQuiz(20)">20 суроо</button>
-            <button onclick="startQuiz(50)">50 суроо</button>
-            <button onclick="startQuiz('all')">Бардык суроолор</button>
-        </div>
-    </div>
-
-    <!-- Суроолор экраны -->
-    <div id="quiz-screen" class="screen">
-        <div class="progress" id="progress-indicator">Суроо 1 / 10</div>
-        <div class="question-text" id="question-container">Суроо текст</div>
-        <div id="options-container"></div>
-    </div>
-
-    <!-- Жыйынтык экраны -->
-    <div id="result-screen" class="screen result-box">
-        <h1>Тест аяктады!</h1>
-        <p>Сиздин жыйынтыгыңыз:</p>
-        <div class="score" id="score-display">0 / 0</div>
-        <button onclick="location.reload()">Кайра баштан өтүү</button>
-    </div>
-</div>
-
-<script>
-    const allData = [
-        { q: "Ичтеринен кан өттү", a: "Өтө кейүү, ичи ачышуу" },
-        { q: "Айда сазайын берген", a: "Айда тилдешкен" },
-        { q: "Кара жаак", a: "Көп какшанган,тили заар" },
-        { q: "Маңдайы жарылуу", a: "Өтө кубануу, сүйүнүү" },
-        { q: "Чечекейи чеч болуу", a: "Жадырап -жайноо" },
-        { q: "Бир буту көргө малынуу", a: "Кыйынчылыкка кабылуу, оор абалда калуу" },
-        { q: "Ортого чычкан жорголобой", a: "Жакындабоо, араздашып калуу ,мамиленин үзүлушү" },
-        { q: "Моюн толгоо", a: "Тил албоо ,айтканга көнбөгөн,бир нерсени жасоодон баш тарткан" },
-        { q: "Жинин каккан", a: "Жазалоо, урушчаак, тез жини келген" },
-        { q: "Мурду менен бир тийүү", a: "Орой мамиле жасоо, корс" },
-        { q: "Кирпик какпай", a: "Уйку бетин көрбөө, уктабоо" },
-        { q: "Маңдай тер ,таман акы", a: "Адал эмгек ,өз күчү менен тапкан таман акы" },
-        { q: "Өпкөсү жок", a: "Жеңил мүнөз ,оолукчан, мактанчаак, көйрөң, ушакчы, туруксуз" },
-        { q: "Өз көмөчүнө күл тартуу", a: "Өз кызыкчылыгын көздөө, өзүмчүл" },
-        { q: "Ак каптал", a: "Дассыкан ,бай , колунда бар,эч нерседен кем эмес" },
-        { q: "Тили буудай кууруйт", a: "Көп сүйлөйт, сөзгө чечен" },
-        { q: "Оту күйүшпөө", a: "Бири-бири менен мамиле табыша албоо, өз ара тил табыша албоо ,жылдызы туура келбөө" },
-        { q: "Кирпигинен тартса жыгылат", a: "Абдан алсыз, алдан-күчтөн тайган, абдан чарчаган же ооруп араң турган" },
-        { q: "Желкесинин чуңкуру көрсүн", a: "Экинчи көргүлүк кылбасын, караанын көрсөтпөө,жек көрүү" },
-        { q: "Тишибиздин кирин соруу", a: "Ачка калуу, жокчулукта же тартыштыкта кысынып калуу" },
-        { q: "Кара жанын карч уруу", a: "Бардык күчүн жумшап аракеттенүү, өтө катуу аракет кылуу" },
-        { q: "Ала көөдөн", a: "Боорукер" },
-        { q: "Ат тезегин кургатпай", a: "тез- тез, дароо" },
-        { q: "Бети калың", a: "Тоготпогон, уялбаган, уят-сыйы жок,бетпак" },
-        { q: "Бөйрөктөн шыйрак чыгаруу", a: "Ыксыз күнөөлө, жок жерден эле бирөөнү айыптаган" },
-        { q: "Жеңи ичинен", a: "Жашыруун, тымызын, элге көрсөтпөй өз ара келишим кылуу" },
-        { q: "Жылдызы жерге түшүү", a: "Көңүлүү чөгүү, капа болуу" },
-        { q: "Иттен чыгаруу", a: "Алдап-салдап жолго салуу, эптеп-септеп узатып коюу" },
-        { q: "Кабыргасы кайышуу", a: "Ичи ачышуу, боору ооруу" },
-        { q: "Казаны оттон түшкөн", a: "Жакырлануу, тамак жасаарга эч нерсеси жок калуу, жетишпеген турмушка туш болуу" },
-        { q: "Кулагы жок", a: "Сөз укпаган, тил абаган өжөр ,кежир" },
-        { q: "Колу туткак", a: "Урулукка жакын, бирөөнүн буюмун сурабай алган адаты бар" },
-        { q: "Мурдун тарта албаган", a: "Али чоңоё элек бала, тажрыйбасыз,эч нерсени түшүнө элек" },
-        { q: "Тил эмизүү", a: "Курулай убада берген,алдоо,сөзүндө турбаган" },
-        { q: "Мурдун көтөргөн", a: "Кекирейген, менменсинген, текебер" },
-        { q: "Чычканга кебек алдырбаган", a: "Зыкым, өтө сараң, тың ,эпчил ,ач көз" },
-        { q: "Төбө чачы тик туруу", a: "Катуу таң калуу" },
-        { q: "Жүрөгү оозуна капталуу", a: "Абдан коркуу, капысынан же ктүүсүз жерден болгон коркунучтуу окуя" },
-        { q: "Камырдан кыл сууругандай", a: "Өтө кылдаттык менен бүтүрүү, абдан жеңил, таза бүтүрүү" },
-        { q: "Көзгө сайса көрүнгүс", a: "Караңгы, айсыз түн" },
-        { q: "Кулагынан күн көрүнүү", a: "Өтө арык, арыктап териси жукарып кетүү" },
-        { q: "Ооз ачпоо", a: "Унчукпоо ,эч нерсе айтпоо,сүйлөбөө" },
-        { q: "Тилин тишине катуу", a: "Ооз ачпоо, сырды бекем катуу, унчукпай калуу" },
-        { q: "Үрүп чыгар ити жок", a: "Өтө кедей ,жакыр, колунда жок,эч нерсеси жок" },
-        { q: "Чычкан мурду өткүс", a: "Жыш, тыгыз, эч кандай боштук жок, өтө бекем" },
-        { q: "Эне сүтү оозунан кете элек", a: "Али жаш, тажрыйбасыз, бала бойдон" },
-        { q: "Сөзүн жерге калтырбоо", a: "Убадасын аткаруу, айтылган сунушун ,сөзүн, өтүнүчүн сыйлап сөзүн эки кылбай аткаруу" },
-        { q: "Көздөн кайым болуу", a: "Жок болуу, көрүнбөй калуу, заматта жок болуп кетүү" },
-        { q: "Ала жипти аттабоо", a: "Арамдык жасабоо, бирөөнүн акысына кирбөө" },
-        { q: "Сөөгүм агарды", a: "Семирүү, бейпил ,жеюил жашоо ,бутуна туруу" },
-        { q: "Оту менен кирип ,күлү менен чыгуу", a: "Эртден кечке кызмат кылуу, үй бүлөсү же башка нерсе үчүн данын берип кызмат кылуу ,катуу эмгектенүү" },
-        { q: "Ысыгына күйүү ,суугуна чыдоо", a: "Чыдамкайлык, кандай гана кыйын күндөр, оор күндөр болбосун баарына чыдоо,турмуштун баардык кыйынчылыгына чыдоо" },
-        { q: "Жылдызы ысык", a: "Жагымдуу, сүйкүмдүү, адамга тез эле жагып калуу" },
-        { q: "Өлгөндүн үстүнө көмгөн", a: "Уят кылуу, кыйынчылыктын үстүнө кыйынчылык, кырсыктын үстүнө кырсык болгондо, иш ого бетер оорлошкондо айтылат" },
-        { q: "Жарытымдуу оокат", a: "Жетерлик тамак-аш" },
-        { q: "Кара кылды карк жарган", a: "Калыс, абдан адилеттүү ,чындыкты гана сүйлөгөн,эч кимге жан тартпаган" },
-        { q: "Кулак угуп, көз көрбөгөн", a: "Алыс, буга чейин такыр кезикпеген, укмуштуу, окуя, иш, жер же нерсе" },
-        { q: "Ичкени ирим ,жегени желим", a: "Нес болуп туруп калуу, абдан кыйналган, санаага баткан,кайгырган же оор абалда калган адамдын абалын билдирет" },
-        { q: "Бетинен кан тамган", a: "Жаркырап турган, татынакай, өңү абдан сулуу, жапжаш" },
-        { q: "Эт менен челдин ортосунда", a: "Эки тараптын ортосунда кошомат кылуу,эки жүздүүлүк" },
-        { q: "Куурай башын сындырбоо", a: "Жалкооо, эч кандай жумуш кылбоо" },
-        { q: "Ичи жалын, сырты чок", a: "Күйүп-бышуу, сырттан караганда абдан тың ,күчтүү көрүнгөнү менен ичинен катуу кайгыруу" },
-        { q: "Түтүн булатуу", a: "Чогу жашоо, үй бүлө куруу" },
-        { q: "Ортосунан кыл өтпөө", a: "Ынтымактуу, ортодогу мамилеси өтө бекем, жакын" },
-        { q: "Төбөсү көккө жетүү", a: "Сүйүнүү, кубануу" },
-        { q: "Көктөн издегени жерден табылды", a: "Таба албай жүргөнүн табу" },
-        { q: "Кирпик какпай жатуу", a: "Уктай албай жатуу" },
-        { q: "Узун жолду кыскартып ,ат жалына казан асуу", a: "Шам -шум этүү, сүйльшүп кетүү" },
-        { q: "Бири-бирине колтук ачпоо", a: "Достошпоо" },
-        { q: "Кыргый кабак", a: "Таарынышкан" },
-        { q: "Бетинен кан таамп, илебине нан бышып", a: "Сүйкүмдүү" },
-        { q: "Оту жыгылуу, суусу алынуу", a: "Баары даяр" },
-        { q: "Кой үстүнө торгой жумуртлаган заман", a: "Тынчтык, токчулук заман" },
-        { q: "Ак кол", a: "Жалкоо" },
-        { q: "Кабагына карыш салып", a: "Капалануу, убайым тартуу" },
-        { q: "Көлөкө түшүрбөө", a: "Жамандык кылбоо" },
-        { q: "Чекесинен чертпөө", a: "Жакын жолой албоо" },
-        { q: "Очоктун отун өчүрбөй", a: "Ынтымакта жашоо" },
-        { q: "Башына баш кошулса", a: "Үйлөнүү" },
-        { q: "Таман акы, маңдай тер, ысык ыклас", a: "Эмгек" },
-        { q: "Ичкен ашын жерге коё салуу", a: "Сыйлоо, урматтоо" },
-        { q: "Кырсык каш кабактын ортосунда", a: "Кокус жерден" },
-        { q: "Тамырын тартуу, колтугуна суу бүркүү", a: "Тукуруу" },
-        { q: "Чырагына май тамызуу", a: "Ишинин оңолушуна жардам берүү" },
-        { q: "Азуусун айга азган", a: "Заарын чачкан" },
-        { q: "Ары карап ыйлап, бери карап күлүү", a: "Өзүн-өзү мажбурлоо" },
-        { q: "Жердин жети түбүндө", a: "Алыстык" },
-        { q: "Ичине таруу айланбайт", a: "Жаман ою жок" },
-        { q: "Жүрөгүндө кири жок", a: "Бирөөгө жамандык каалабаган" },
-        { q: "Сары изине чөп салуу", a: "Сая түшүү" },
-        { q: "Саргара кууп алуу", a: "Көптөн берүү издөө" },
-        { q: "Ажыдаардын куйругун басып алуу", a: "Каарына калуу" },
-        { q: "Бөрк ал десе, баш алган", a: "Аша чабуу" },
-        { q: "Бирөөнүн сөзүнө ишенип, сызга отуруп калуу", a: "Натыйжасыз калуу" },
-        { q: "Кабырган менен кеңеш", a: "Ойлонуу" },
-        { q: "Колунан көөрү төгүлүү", a: "Уста" },
-        { q: "Музоо кезинде эле, сүзүп коюу", a: "Жаңы бала кезинде тарбиялоо" },
-        { q: "Суулуулугу менен суу ичип", a: "Куру чиренүү" },
-        { q: "Өтүгү менен суу кечип", a: "Кедейленүү" },
-        { q: "Капилеттен сөз тапкан, караңгыда жол ачкан", a: "Чечен, лидер, акылман" },
-        { q: "Жырык ийнесине тийбеген", a: "Эч нерсесине тийбеген" },
-        { q: "Өчкөн отун тамызуу", a: "Оңолуу" },
-        { q: "Өлгөн жанды тиргизген", a: "Үмүт берүү" },
-        { q: "Чачылганды жыйноо", a: "Бириктирүү" },
-        { q: "Үзүлгөндү улоо", a: "Жараштыруу, оңдоо" },
-        { q: "Кара сууга кан төккөн", a: "Баарын күчөткөн" },
-        { q: "Ак эткенден так этүү", a: "Эңсөө" },
-        { q: "Колу жука", a: "Кедей" },
-        { q: "Эшигинде адалдан түгү жок", a: "Кедей" },
-        { q: "Таңдайынан чаң чыгуу", a: "Чечен, сөзмөөр" },
-        { q: "Үрөйү учуу", a: "Коркуу, таң калуу" },
-        { q: "Канаттууга кактырбай, тумшуктууга чокутпоо", a: "Өтө аярлоо" },
-        { q: "Битин сыгып канын жалоо", a: "Зыкым, сараң" },
-        { q: "Жаны көзүнө көрүнүү", a: "Катуу ооруп калуу" },
-        { q: "Жону жукарып, колу кыскаруу", a: "Кедей болуп калуу" },
-        { q: "Беш колубуздан май таамп, байпагыбыз макмал болгон", a: "Бай болуу" },
-        { q: "Күн карама", a: "Кошоматчы" },
-        { q: "Мурдун балта кеспөө", a: "Тоготпоо" },
-        { q: "Кайырмакка саяр эти жок", a: "Арык" },
-        { q: "Каны ичине тартуу", a: "Ачуусу келүү" },
-        { q: "Текей оттоп жүрүү", a: "Бекерчилик" },
-        { q: "Күн тийген тоонун күкүгү", a: "Кошоматчы" },
-        { q: "Кыртышы сүйбөө", a: "Жактырбоо" },
-        { q: "Ааламды сел каптаса да, кызыл ашыгына да чыгып койбойт", a: "Беймарал" },
-        { q: "Кесип алса, кан чыкпайт", a: "Сараң" },
-        { q: "Тили оозуна батпоо", a: "Көп сүйлөгөн, оозу бош" },
-        { q: "Жер баспай калуу", a: "Текеберленген" },
-        { q: "Кыл жугузбоо", a: "Таза" },
-        { q: "Көчө таптоо", a: "Бекерчи" },
-        { q: "Кекиртегин талга асуу", a: "Эч нерсеси жок" },
-        { q: "Кырды-бычак болуу", a: "Урушуу, кас болуу" },
-        { q: "Ортосуна от жагуу", a: "Экөөнү уруштуруу" },
-        { q: "Каны катуу", a: "Суусоо, чаңкоо" },
-        { q: "Жерге-сууга тийгизбөө", a: "Мактоо" },
-        { q: "Ак көрпө жайыл", a: "Билерман" },
-        { q: "Алты саны аман", a: "Дени сак" },
-        { q: "Бештен белгилүү", a: "Өтө белгилүү" },
-        { q: "Бешиктен бели чыга элек", a: "Жаш, чоңоё элек" },
-        { q: "Ач айкырык, куу кыйкырык", a: "Азап-тозок" },
-        { q: "Бычакка саптык уулуң жок, камчыга саптык бириң жок", a: "Ишке жараар" },
-        { q: "Ит байлаган жиптен жок", a: "Куру жалак калуу" },
-        { q: "Азуусун айга бир кайроо", a: "Ачуулануу" },
-        { q: "Боз торгой жумурткалап", a: "Кеңиричилик" },
-        { q: "Котур ташы койнунда", a: "Арам ойлуу" },
-        { q: "Бир чылбыр эки тизгин колунда", a: "Бийлик" },
-        { q: "Аягынан жел эптеп өтүп турса", a: "Эптеп-септеп жашоо" },
-        { q: "Жер каратпоо", a: "Уят кылбоо" },
-        { q: "Териси жука", a: "Сөз көтөрө албаган" },
-        { q: "Ачуусу мурдунун учунда", a: "Ачуулуу" },
-        { q: "Жүрөк суусун алуу", a: "Коркутуу" },
-        { q: "Бир аягым көрдө, бир аягым төрдө", a: "Өлүм алдында" },
-        { q: "Сары ооз балапан", a: "Жаш" },
-        { q: "Көзүнүн төбөсү менен кароо", a: "Жек көрүү" },
-        { q: "Көзү чанагынан чыгып кетүү", a: "Бапырайган" },
-        { q: "Жел өпкө", a: "Көйрөң" },
-        { q: "Бир карын майды, бир кумалак чиритет", a: "Бир жаман адам" },
-        { q: "Төөнү букакка чапкандай", a: "Тез-тез сүйлөө" },
-        { q: "Кулак-мурун кескендей", a: "Тынч, жымжырттык" },
-        { q: "Жер менен жексен кылуу", a: "Жок кылуу" },
-        { q: "Башы бышкан", a: "Дасыккан" },
-        { q: "Көзү каныккан", a: "Билип калуу" },
-        { q: "Буту үзүлгөнчө чуркоо", a: "Тез чуркоо" },
-        { q: "Мурдунан жетелөө", a: "Баш ийдирип алуу" },
-        { q: "Карышкырга кой кайтартуу", a: "Душманына шарт түзүү" },
-        { q: "Ийне-жибине чейин", a: "Майда-чүйдөсүнө чейин" },
-        { q: "Үкүнүн уясын тапкандай", a: "Кубануу" },
-        { q: "Бармагын кесе тиштөө", a: "Өкүнүү" },
-        { q: "Темирдин кызуусунда согуу", a: "Өз убагында аткаруу" },
-        { q: "Төөнүн куйругу жерге тийгенде", a: "Эч качан" },
-        { q: "Сөөк жаңыртуу", a: "Мурда кудаа-сөөк болгон адамдар менен экинчи жолу да кыз алышып, кыз беришип, дагы кудалашуу" },
-        { q: "Сөөгүн сөпөт кылуу", a: "Өлтүрүү, жоготуу, жок кылуу, дайынын билгизбей салуу." },
-        { q: "Сөөгү таза", a: "Мүчөсү, сын-сыпаты келишкен, сымбаттуу." },
-        { q: "Сөөгү жукаруу", a: "Начарлоо, арып-ачып, арыктап калуу, күч-кубатынан таюу." },
-        { q: "Талпагын ташка жаюу", a: "Кыйратуу, талкалоо, жок кылуу, ташын талкан кылуу." },
-        { q: "Топурагы жеңил", a: "Жалаага жакын, сөзгө бат илеше турган." },
-        { q: "Куйрук түйүү", a: "Биротоло кетип калуу, алыстоо, таптырбоо, карматпоо, экинчи колго тийбөө." },
-        { q: "Күмүштүн күкүмүндөй терүү", a: "Өтө кылдаттык менен чогултуу, үйрөнүү, этият мамиле жасоо, аздектөө." },
-        { q: "Ичи өрт менен жалын болуу", a: "Абдан катуу кайгыруу, күйүт тартуу, күйгүлтүккө түшүү." },
-        { q: "Ичи сыйрылуу", a: "Кыйылуу, өкүнүү, кейигенсүү, боору ооруу." },
-        { q: "Бети ачык", a: "Ийменгенди, тартынганды билбеген, уяты жок, кашка." },
-        { q: "Боору түтпөө", a: "Чыдай албай жан тартуу, кыйып кете албоо, аяп туруу, имерчиктөө." },
-        { q: "Жамбашы жерге тийгенче", a: "Өлөр-өлгөнчө, өмүрүнүн акырына чейин." },
-        { q: "Жой болоттой", a: "Абдан курчуп, такшалып. Эч тартынбай, тайманбай киришкидей же айткыдай." },
-        { q: "Жонуна конуу", a: "Бийлеп алуу, үстөмдүк кылуу." },
-        { q: "Жонунда жалы бар", a: "Баатыр, жалтанбас, эр жүрөк." },
-        { q: "Жылаңач төөнү букакка чапкандай", a: "Эч токтоосуз, буйдалбастан, шырдыр шар." },
-        { q: "Быкбырдай кайноо", a: "Өтө көп болуу, сан жеткис абалда жык-жыйма болуп көрүнүү, толуп, жайнап кетүү." },
-        { q: "Заманасы куурулуу", a: "Шек келтирүү, акарат кылуу." },
-        { q: "Зоот-кыягы жок", a: "Эч кыйынчылыгы жок, жеңил, оңой, анча татаал эмес." },
-        { q: "Зээр салуу", a: "Көңүл бөлүү, назар таштоо" }
-    ];
-
-    let currentQuestions = [];
-    let currentIndex = 0;
-    let score = 0;
-
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    function startQuiz(count) {
-        let shuffledAll = shuffle([...allData]);
-        if (count === 'all' || count >= shuffledAll.length) {
-            currentQuestions = shuffledAll;
-        } else {
-            currentQuestions = shuffledAll.slice(0, count);
-        }
-        currentIndex = 0;
-        score = 0;
-
-        document.getElementById('start-screen').classList.remove('active');
-        document.getElementById('quiz-screen').classList.add('active');
-        showQuestion();
-    }
-
-    function showQuestion() {
-        if (currentIndex >= currentQuestions.length) {
-            showResult();
-            return;
-        }
-
-        const qData = currentQuestions[currentIndex];
-        document.getElementById('progress-indicator').innerText = `Суроо ${currentIndex + 1} / ${currentQuestions.length}`;
-        document.getElementById('question-container').innerText = `"${qData.q}" фразеологизминин маанисин табыңыз:`;
-
-        // Башка жооптордон туш келди 3 адаштыруучу вариант тандап алабыз
-        let wrongOptions = allData
-            .filter(item => item.a !== qData.a)
-            .map(item => item.a);
-        wrongOptions = shuffle(wrongOptions).slice(0, 3);
-
-        let options = [...wrongOptions, qData.a];
-        options = shuffle(options);
-
-        const optionsContainer = document.getElementById('options-container');
-        optionsContainer.innerHTML = '';
-
-        options.forEach(option => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = option;
-            btn.onclick = () => checkAnswer(btn, option, qData.a);
-            optionsContainer.appendChild(btn);
-        });
-    }
-
-    function checkAnswer(button, selected, correct) {
-        const buttons = document.querySelectorAll('.option-btn');
-        buttons.forEach(b => b.disabled = true);
-
-        if (selected === correct) {
-            button.classList.add('correct');
-            score++;
-        } else {
-            button.classList.add('incorrect');
-            buttons.forEach(b => {
-                if (b.innerText === correct) {
-                    b.classList.add('correct');
-                }
-            });
-        }
-
-        setTimeout(() => {
-            currentIndex++;
-            showQuestion();
-        }, 1200);
-    }
-
-    function showResult() {
-        document.getElementById('quiz-screen').classList.remove('active');
-        document.getElementById('result-screen').classList.add('active');
-        document.getElementById('score-display').innerText = `${score} / ${currentQuestions.length}`;
-    }
-</script>
-
-</body>
-</html>
-<style>
-@media (max-width: 768px) {
-    body {
-        flex-direction: column !important;
-    }
-}
-</style>
